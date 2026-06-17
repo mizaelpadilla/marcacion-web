@@ -1,0 +1,23 @@
+<h2>Lista de Empleados</h2>
+
+<table border="1">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nombres</th>
+      <th>Apellidos</th>
+      <th>DNI</th>
+      <th>Correo</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr *ngFor="let e of empleados">
+      <td>{{e.idEmpleado}}</td>
+      <td>{{e.nombres}}</td>
+      <td>{{e.apellidos}}</td>
+      <td>{{e.dni}}</td>
+      <td>{{e.correo}}</td>
+    </tr>
+  </tbody>
+</table>
