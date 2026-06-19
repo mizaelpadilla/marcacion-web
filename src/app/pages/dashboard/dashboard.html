@@ -1,29 +1,49 @@
-<h1>Sistema de Marcación</h1>
+<div class="welcome-banner">
+  <h1>¡Hola {{ primerNombre }} !</h1>
+  <p class="welcome-sub">Bienvenido a MarcacionPro</p>
+  <p class="welcome-note">Nos alegra tenerte por aquí, no olvides realizar tu marcación.</p>
+</div>
 
-<hr>
+<div class="dashboard-grid-modern">
+  <!-- ÁREA DE CONTROL -->
+  <div class="stat-card">
+    <h3>Área de control</h3>
+    <div class="control-grid">
+      <div class="control-box">
+        <span class="box-label">Colaboradores</span>
+        <div class="box-values">
+          <span class="val-active">Activos: <strong>{{ activos }}</strong></span>
+          <span class="val-inactive">Inactivos: <strong>{{ inactivos }}</strong></span>
+        </div>
+      </div>
+      <div class="control-box">
+        <span class="box-label">Áreas</span>
+        <div class="box-values"><span>Activos: 0</span></div>
+      </div>
+      <div class="control-box">
+          <span class="box-label">Cargos</span>
+          <div class="box-values"><span>Activos: 0</span></div>
+        </div>
+    </div>
+  </div>
 
-<div class="dashboard-menu">
-  <button routerLink="/empleados">
-    <i class="bi bi-people-fill"></i> Empleados
-  </button>
-
-  <button routerLink="/usuarios">
-    <i class="bi bi-person-badge-fill"></i> Usuarios
-  </button>
-
-  <button routerLink="/horarios">
-    <i class="bi bi-clock-fill"></i> Horarios
-  </button>
-
-  <button routerLink="/turnos">
-    <i class="bi bi-calendar-week-fill"></i> Turnos
-  </button>
-
-  <button routerLink="/planificaciones">
-    <i class="bi bi-calendar-check-fill"></i> Planificaciones
-  </button>
-
-  <button routerLink="/marcaciones">
-    <i class="bi bi-geo-alt-fill"></i> Marcaciones
-  </button>
+  <!-- MARCACIONES RECIENTES -->
+  <div class="stat-card">
+    <h3>Marcaciones recientes</h3>
+    <div class="recent-list">
+      @if (marcacionesRecientes.length > 0) {
+          @for (m of marcacionesRecientes; track m.idMarcacion) {
+              <div class="recent-item">
+                  <i class="bi bi-clock"></i>
+                  <span>{{ m.empleado?.nombres }} - {{ m.horaEntrada || 'S/M' }}</span>
+              </div>
+          }
+      } @else {
+          <div class="empty-msg">
+              <i class="bi bi-info-circle"></i>
+              <p>No se encuentran marcaciones recientes disponibles.</p>
+          </div>
+      }
+    </div>
+  </div>
 </div>

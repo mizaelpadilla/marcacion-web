@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AsistenciaService } from '../../services/asistencia';
@@ -13,11 +13,14 @@ import { Horario } from '../../models/asistencia';
 })
 export class Horarios implements OnInit {
   private asistenciaService = inject(AsistenciaService);
+  private cd = inject(ChangeDetectorRef);
 
   listaHorarios: Horario[] = [];
-  mostrarModalCrear = false;
+  mostrarModal = false;
+  modoEdicion = false;
 
-  nuevoHorario: Horario = {
+  horarioSeleccionado: Horario = {
+    idHorario: 0,
     nombreHorario: '',
     horaEntrada: '',
     horaSalida: '',
@@ -31,27 +34,34 @@ export class Horarios implements OnInit {
   }
 
   cargarHorarios(): void {
-  this.asistenciaService.getHorarios().subscribe({
-    next: (data) => {
-      console.log('Datos recibidos de la API:', data); // <-- Agrega este log para espiar qué responde .NET
-      this.listaHorarios = data;
-    },
-    error: (err) => console.error('Error al traer horarios:', err)
-  });
-}
+    this.asistenciaService.getHorarios().subscribe({
+      next: (data) => {
+        this.listaHorarios = [...data];
+        this.cd.detectChanges();
+      },
+      error: (err) => console.error('Error al cargar horarios:', err)
+    });
+  }
 
   abrirModalCrear(): void {
     this.resetFormulario();
-    this.mostrarModalCrear = true;
+    this.modoEdicion = false;
+    this.mostrarModal = true;
   }
 
-  cerrarModalCrear(): void {
-    this.mostrarModalCrear = false;
+  editar(h: Horario): void {
+    this.horarioSeleccionado = { ...h };
+    this.modoEdicion = true;
+    this.mostrarModal = true;
   }
 
-  guardarHorario(): void {
-    if (!this.nuevoHorario.nombreHorario || !this.nuevoHorario.horaEntrada || !this.nuevoHorario.horaSalida) {
-      alert('Por favor, rellene los campos obligatorios (Nombre, Entrada y Salida).');
+  cerrarModal(): void {
+    this.mostrarModal = false;
+  }
+
+  guardar(): void {
+    if (!this.horarioSeleccionado.nombreHorario || !this.horarioSeleccionado.horaEntrada || !this.horarioSeleccionado.horaSalida) {
+      alert('Nombre, Entrada y Salida son obligatorios.');
       return;
     }
 
@@ -60,26 +70,47 @@ export class Horarios implements OnInit {
       return time.split(':').length === 2 ? `${time}:00` : time;
     };
 
-    const horarioPayload: Horario = {
-      ...this.nuevoHorario,
-      horaEntrada: formatearTimeSpan(this.nuevoHorario.horaEntrada)!,
-      horaSalida: formatearTimeSpan(this.nuevoHorario.horaSalida)!,
-      horaRefrigerio: formatearTimeSpan(this.nuevoHorario.horaRefrigerio) || undefined,
-      horaFinRefrigerio: formatearTimeSpan(this.nuevoHorario.horaFinRefrigerio) || undefined
+    const payload: Horario = {
+      ...this.horarioSeleccionado,
+      horaEntrada: formatearTimeSpan(this.horarioSeleccionado.horaEntrada)!,
+      horaSalida: formatearTimeSpan(this.horarioSeleccionado.horaSalida)!,
+      horaRefrigerio: formatearTimeSpan(this.horarioSeleccionado.horaRefrigerio) || undefined,
+      horaFinRefrigerio: formatearTimeSpan(this.horarioSeleccionado.horaFinRefrigerio) || undefined
     };
 
-    this.asistenciaService.crearHorario(horarioPayload).subscribe({
-      next: (res) => {
-        alert(res.mensaje);
-        this.mostrarModalCrear = false;
-        this.cargarHorarios();
-      },
-      error: (err) => alert(err.error || 'Error al intentar guardar el horario.')
-    });
+    if (this.modoEdicion) {
+      this.asistenciaService.editarHorario(payload.idHorario!, payload).subscribe({
+        next: () => {
+          alert('Horario actualizado');
+          this.mostrarModal = false;
+          this.cargarHorarios();
+        },
+        error: (err) => alert('Error al editar')
+      });
+    } else {
+      this.asistenciaService.crearHorario(payload).subscribe({
+        next: () => {
+          alert('Horario creado');
+          this.mostrarModal = false;
+          this.cargarHorarios();
+        },
+        error: (err) => alert('Error al crear')
+      });
+    }
+  }
+
+  eliminar(id: number): void {
+    if (confirm('¿Desactivar este horario?')) {
+      this.asistenciaService.eliminarHorario(id).subscribe({
+        next: () => this.cargarHorarios(),
+        error: (err) => alert('Error al desactivar')
+      });
+    }
   }
 
   resetFormulario(): void {
-    this.nuevoHorario = {
+    this.horarioSeleccionado = {
+      idHorario: 0,
       nombreHorario: '',
       horaEntrada: '',
       horaSalida: '',

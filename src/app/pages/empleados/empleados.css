@@ -1,102 +1,40 @@
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:20px;
+/* ESTILOS ESPECÍFICOS DE LA PÁGINA COLABORADORES */
+.header-inline-left {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 25px;
 }
 
-th,
-td{
-  border:1px solid #ddd;
-  padding:10px;
+.bold-text {
+    font-weight: 600;
+    color: #333;
 }
 
-th{
-  background:#0d6efd;
-  color:white;
+.acciones {
+    display: flex;
+    gap: 10px;
 }
 
-.acciones{
-  display:flex;
-  gap:10px;
-  justify-content:center;
+.btn-icon-edit, .btn-icon-delete {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+    transition: 0.2s;
 }
 
-.btn-icon{
-  border:none;
-  background:none;
-  cursor:pointer;
-  font-size:18px;
-}
+.btn-icon-edit { color: #0049ce; }
+.btn-icon-edit:hover { background-color: #e3f2fd; }
 
-.editar{
-  color:#0d6efd;
-}
+.btn-icon-delete { color: #f38a20; }
+.btn-icon-delete:hover { background-color: #fff3e0; }
 
-.editar:hover{
-  color:#084298;
-}
-
-.eliminar{
-  color:#dc3545;
-}
-
-.eliminar:hover{
-  color:#b02a37;
-}
-
-/* MODAL */
-
-.modal-backdrop{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,.5);
-
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
-
-.modal{
-  background:white;
-  padding:25px;
-  border-radius:10px;
-  width:400px;
-
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-
-.modal input{
-  padding:8px;
-  border:1px solid #ccc;
-  border-radius:5px;
-}
-
-.modal-buttons{
-  display:flex;
-  justify-content:flex-end;
-  gap:10px;
-  margin-top:10px;
-}
-
-.btn-cancelar{
-  background:#6c757d;
-  color:white;
-  border:none;
-  padding:10px;
-  border-radius:5px;
-  cursor:pointer;
-}
-
-.btn-guardar{
-  background:#198754;
-  color:white;
-  border:none;
-  padding:10px;
-  border-radius:5px;
-  cursor:pointer;
+.no-data {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+    font-style: italic;
 }

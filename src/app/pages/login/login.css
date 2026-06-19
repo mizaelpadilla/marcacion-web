@@ -1,15 +1,193 @@
-.login-container{
-    width:400px;
-    margin:100px auto;
-    display:flex;
-    flex-direction:column;
-    gap:15px;
+.split-screen {
+  display: flex;
+  height: 100vh;
+  width: 100%;
 }
 
-input{
-    padding:10px;
+/* Lado Izquierdo: Azul */
+.left-side {
+  flex: 1;
+  background-color: #0049ce;
+  color: white;
+  padding: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-button{
-    padding:10px;
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.info-content h2 {
+  font-size: 36px;
+  margin-bottom: 40px;
+  font-weight: 800;
+}
+
+.benefits-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.benefits-list li {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.benefits-list i {
+  color: #f38a20;
+  font-size: 22px;
+}
+
+.footer-note {
+  font-style: italic;
+  font-size: 18px;
+  opacity: 0.9;
+  max-width: 500px;
+}
+
+/* Lado Derecho: Formulario */
+.right-side {
+  flex: 1;
+  background-color: #f4f7fe;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.login-card {
+  background: white;
+  padding: 50px;
+  border-radius: 24px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.04);
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+}
+
+.login-header {
+  margin-bottom: 40px;
+}
+
+.text-orange {
+  color: #f38a20;
+}
+
+.login-header h1 {
+  font-size: 72px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.welcome-pill {
+  background-color: #f38a20;
+  color: white;
+  display: inline-block;
+  padding: 8px 60px;
+  border-radius: 50px;
+  font-size: 26px;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.subtitle {
+  color: #666;
+  margin-top: 25px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.form-body {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  text-align: left;
+}
+
+.input-group label {
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.input-group input {
+  background-color: #eef2f8;
+  border: 1px solid transparent;
+  padding: 15px 20px;
+  border-radius: 12px;
+  font-size: 16px;
+  width: 100%;
+  box-sizing: border-box;
+  outline: none;
+  transition: 0.3s;
+}
+
+.input-group input:focus {
+  border-color: #0049ce;
+  background-color: white;
+}
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.btn-toggle-eye {
+  position: absolute;
+  right: 15px;
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.btn-ingresar {
+  background-color: #0049ce;
+  color: white;
+  border: none;
+  padding: 16px;
+  border-radius: 50px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn-ingresar:disabled {
+  background-color: #5c8ae8;
+  cursor: not-allowed;
+}
+
+.spin {
+  animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .left-side {
+    display: none;
+  }
 }

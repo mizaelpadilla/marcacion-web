@@ -1,1 +1,78 @@
-<router-outlet></router-outlet>
+<!-- SI NO ES LOGIN, MOSTRAR LAYOUT CON SIDEBAR -->
+<div class="main-layout" *ngIf="mostrarLayout">
+  <!-- SIDEBAR PERSISTENTE -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo-wrapper">
+        <div class="orange-icon">
+          <i class="bi bi-lightning-charge-fill"></i>
+        </div>
+        <span>Marcacion<strong class="white-text">Pro</strong></span>
+      </div>
+    </div>
+
+    <nav class="sidebar-menu">
+      <div class="menu-category">Menu Principal</div>
+      <a routerLink="/dashboard" class="menu-item" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+        <i class="bi bi-grid-1x2-fill"></i> Panel de Control
+      </a>
+      <a routerLink="/marcaciones" class="menu-item" routerLinkActive="active">
+        <i class="bi bi-clock-fill"></i> Marcaciones
+      </a>
+
+      <div class="menu-category">Administración</div>
+      <a routerLink="/empleados" class="menu-item" routerLinkActive="active">
+        <i class="bi bi-people-fill"></i> Colaboradores
+      </a>
+      <a routerLink="/usuarios" class="menu-item" routerLinkActive="active">
+        <i class="bi bi-shield-lock-fill"></i> Usuarios
+      </a>
+      <a routerLink="/horarios" class="menu-item" routerLinkActive="active">
+        <i class="bi bi-calendar3-event"></i> Horarios
+      </a>
+      <a routerLink="/turnos" class="menu-item" routerLinkActive="active">
+        <i class="bi bi-layers-fill"></i> Turnos Semanales
+      </a>
+      <a routerLink="/planificaciones" class="menu-item" routerLinkActive="active">
+        <i class="bi bi-briefcase-fill"></i> Planificación
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <button (click)="cerrarSesion()" class="btn-logout">
+            <i class="bi bi-power"></i> Finalizar Sesión
+        </button>
+    </div>
+  </aside>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="content-area">
+    <header class="top-header">
+      <div class="header-left">
+        <div class="search-fake">
+          <i class="bi bi-search"></i>
+          <input type="text" placeholder="Buscar en el sistema...">
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="user-profile-simple">
+          <div class="user-text">
+            <span class="user-name">{{ primerNombre }}</span>
+            <span class="user-role">{{ usuarioLogueado?.rol || 'Administrador' }}</span>
+          </div>
+          <div class="user-icon-circle">
+            <i class="bi bi-person"></i>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- AQUÍ SE CARGAN TODAS LAS PÁGINAS -->
+    <section class="page-container">
+      <router-outlet></router-outlet>
+    </section>
+  </main>
+</div>
+
+<!-- SI ES EL LOGIN, SOLO MOSTRAR EL ROUTER OUTLET -->
+<router-outlet *ngIf="!mostrarLayout"></router-outlet>

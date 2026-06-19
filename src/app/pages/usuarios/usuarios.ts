@@ -59,6 +59,7 @@ export class Usuarios implements OnInit {
     this.empleadoService.listar().subscribe({
       next: (data) => {
         this.listaEmpleados = data.filter(e => e.estado === true);
+        this.cd.detectChanges();
       },
       error: (err) => console.error('Error al cargar empleados:', err)
     });
@@ -99,14 +100,25 @@ export class Usuarios implements OnInit {
   }
 
   guardarCambioRol() {
-    alert('Rol actualizado con éxito (Asegúrate de tener el endpoint PUT en tu API C#)');
-    this.mostrarModalEditar = false;
-    this.cargarUsuarios();
+    this.usuarioService.editarUsuario(this.usuarioSeleccionado.idUsuario!, this.usuarioSeleccionado).subscribe({
+      next: () => {
+        alert('Usuario actualizado con éxito');
+        this.mostrarModalEditar = false;
+        this.cargarUsuarios();
+      },
+      error: () => alert('Error al actualizar usuario')
+    });
   }
 
   desactivarUsuario(idUsuario: number) {
     if (confirm('¿Está seguro de que desea desactivar el acceso al sistema para este usuario?')) {
-      alert('Acceso de usuario desactivado.');
+      this.usuarioService.eliminarUsuario(idUsuario).subscribe({
+        next: () => {
+          alert('Acceso de usuario desactivado.');
+          this.cargarUsuarios();
+        },
+        error: () => alert('Error al desactivar usuario')
+      });
     }
   }
 

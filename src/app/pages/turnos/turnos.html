@@ -1,13 +1,10 @@
-<div class="turnos-container">
+<h2 class="page-title-blue">Gestión de Turnos Semanales</h2>
+<div class="header-inline-left">
+  <button class="btn-action-blue" (click)="abrirModalCrear()">+ Configurar Turno</button>
+</div>
 
-  <div class="header-seccion">
-    <h2>Gestión de Turnos Semanales</h2>
-    <button class="btn-agregar" (click)="abrirModalCrear()">
-      <i class="bi bi-calendar-week-fill"></i> Configurar Turno
-    </button>
-  </div>
-
-  <table class="tabla-turnos">
+<div class="table-card-modern">
+  <table class="styled-table">
     <thead>
       <tr>
         <th>ID</th>
@@ -19,101 +16,128 @@
         <th>Vie</th>
         <th>Sab</th>
         <th>Dom</th>
+        <th>Acciones</th>
       </tr>
     </thead>
     <tbody>
       @for (turno of listaTurnos; track turno.idTurno) {
         <tr>
           <td>{{ turno.idTurno }}</td>
-          <td><strong>{{ turno.nombreTurno }}</strong></td>
-          <td><span class="day-cell" [class.descanso]="!turno.horarioLunes">{{ turno.horarioLunes?.nombreHorario || 'Descanso' }}</span></td>
-          <td><span class="day-cell" [class.descanso]="!turno.horarioMartes">{{ turno.horarioMartes?.nombreHorario || 'Descanso' }}</span></td>
-          <td><span class="day-cell" [class.descanso]="!turno.horarioMiercoles">{{ turno.horarioMiercoles?.nombreHorario || 'Descanso' }}</span></td>
-          <td><span class="day-cell" [class.descanso]="!turno.horarioJueves">{{ turno.horarioJueves?.nombreHorario || 'Descanso' }}</span></td>
-          <td><span class="day-cell" [class.descanso]="!turno.horarioViernes">{{ turno.horarioViernes?.nombreHorario || 'Descanso' }}</span></td>
-          <td><span class="day-cell" [class.descanso]="!turno.horarioSabado">{{ turno.horarioSabado?.nombreHorario || 'Descanso' }}</span></td>
-          <td><span class="day-cell" [class.descanso]="!turno.horarioDomingo">{{ turno.horarioDomingo?.nombreHorario || 'Descanso' }}</span></td>
-        </tr>
-      } @empty {
-        <tr>
-          <td colspan="9" class="no-data">No hay turnos semanales configurados.</td>
+          <td class="bold-text">{{ turno.nombreTurno }}</td>
+          <td><span class="day-cell">{{ turno.horarioLunes?.nombreHorario || 'Descanso' }}</span></td>
+          <td><span class="day-cell">{{ turno.horarioMartes?.nombreHorario || 'Descanso' }}</span></td>
+          <td><span class="day-cell">{{ turno.horarioMiercoles?.nombreHorario || 'Descanso' }}</span></td>
+          <td><span class="day-cell">{{ turno.horarioJueves?.nombreHorario || 'Descanso' }}</span></td>
+          <td><span class="day-cell">{{ turno.horarioViernes?.nombreHorario || 'Descanso' }}</span></td>
+          <td><span class="day-cell">{{ turno.horarioSabado?.nombreHorario || 'Descanso' }}</span></td>
+          <td><span class="day-cell">{{ turno.horarioDomingo?.nombreHorario || 'Descanso' }}</span></td>
+          <td class="acciones">
+            <button class="btn-icon-edit" (click)="editar(turno)" title="Editar">
+                <i class="bi bi-pencil-square"></i>
+            </button>
+            <button class="btn-icon-delete" (click)="eliminar(turno.idTurno!)" title="Eliminar">
+                <i class="bi bi-trash-fill"></i>
+            </button>
+          </td>
         </tr>
       }
     </tbody>
   </table>
 </div>
 
-@if (mostrarModalCrear) {
+<!-- MODAL REDISEÑADO TURNO -->
+@if (mostrarModal) {
 <div class="modal-backdrop">
-  <div class="modal-grande">
-    <h3>Configurar Nuevo Esquema Semanal</h3>
-
-    <label>Nombre del Turno:</label>
-    <input type="text" [(ngModel)]="nuevoTurno.nombreTurno" placeholder="Ej: Oficina Central L-V">
-
-    <p class="instruccion">Asigne un bloque horario para cada día de la semana:</p>
-
-    <div class="dias-grid">
-      <div class="dia-field">
-        <label>Lunes</label>
-        <select [(ngModel)]="nuevoTurno.idHorarioLunes">
-          <option [value]="null">-- Descanso --</option>
-          @for (h of listaHorarios; track h.idHorario) { <option [value]="h.idHorario">{{h.nombreHorario}}</option> }
-        </select>
-      </div>
-
-      <div class="dia-field">
-        <label>Martes</label>
-        <select [(ngModel)]="nuevoTurno.idHorarioMartes">
-          <option [value]="null">-- Descanso --</option>
-          @for (h of listaHorarios; track h.idHorario) { <option [value]="h.idHorario">{{h.nombreHorario}}</option> }
-        </select>
-      </div>
-
-      <div class="dia-field">
-        <label>Miércoles</label>
-        <select [(ngModel)]="nuevoTurno.idHorarioMiercoles">
-          <option [value]="null">-- Descanso --</option>
-          @for (h of listaHorarios; track h.idHorario) { <option [value]="h.idHorario">{{h.nombreHorario}}</option> }
-        </select>
-      </div>
-
-      <div class="dia-field">
-        <label>Jueves</label>
-        <select [(ngModel)]="nuevoTurno.idHorarioJueves">
-          <option [value]="null">-- Descanso --</option>
-          @for (h of listaHorarios; track h.idHorario) { <option [value]="h.idHorario">{{h.nombreHorario}}</option> }
-        </select>
-      </div>
-
-      <div class="dia-field">
-        <label>Viernes</label>
-        <select [(ngModel)]="nuevoTurno.idHorarioViernes">
-          <option [value]="null">-- Descanso --</option>
-          @for (h of listaHorarios; track h.idHorario) { <option [value]="h.idHorario">{{h.nombreHorario}}</option> }
-        </select>
-      </div>
-
-      <div class="dia-field">
-        <label>Sábado</label>
-        <select [(ngModel)]="nuevoTurno.idHorarioSabado">
-          <option [value]="null">-- Descanso --</option>
-          @for (h of listaHorarios; track h.idHorario) { <option [value]="h.idHorario">{{h.nombreHorario}}</option> }
-        </select>
-      </div>
-
-      <div class="dia-field">
-        <label>Domingo</label>
-        <select [(ngModel)]="nuevoTurno.idHorarioDomingo">
-          <option [value]="null">-- Descanso --</option>
-          @for (h of listaHorarios; track h.idHorario) { <option [value]="h.idHorario">{{h.nombreHorario}}</option> }
-        </select>
-      </div>
+  <div class="modal-content-solid" style="max-width: 800px;">
+    <div class="modal-header">
+        <h3>{{ modoEdicion ? 'Editar Esquema Semanal' : 'Nuevo Esquema Semanal' }}</h3>
+        <span class="close-btn" (click)="cerrarModal()">&times;</span>
     </div>
+    <div class="modal-body">
+        <div class="form-group full-width" [class.valid]="turnoSeleccionado.nombreTurno">
+            <label>Nombre del Turno:</label>
+            <div class="input-container">
+                <input type="text" [(ngModel)]="turnoSeleccionado.nombreTurno" placeholder="Ej: Oficina Central L-V">
+                <i class="bi bi-check-circle-fill validation-check"></i>
+            </div>
+        </div>
 
-    <div class="modal-buttons">
-      <button class="btn-cancelar" (click)="cerrarModalCrear()">Cancelar</button>
-      <button class="btn-guardar" (click)="guardarTurno()">Guardar Turno</button>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+          <div class="form-group" [class.valid]="true">
+            <label>Lunes</label>
+            <div class="input-container">
+                <select [(ngModel)]="turnoSeleccionado.idHorarioLunes">
+                  <option [value]="null">Descanso</option>
+                  @for (h of listaHorarios; track h.idHorario) { <option [value]="h.idHorario">{{h.nombreHorario}}</option> }
+                </select>
+                <i class="bi bi-check-circle-fill validation-check"></i>
+            </div>
+          </div>
+          <div class="form-group" [class.valid]="true">
+            <label>Martes</label>
+            <div class="input-container">
+                <select [(ngModel)]="turnoSeleccionado.idHorarioMartes">
+                  <option [value]="null">Descanso</option>
+                  @for (h of listaHorarios; track h.idHorario) { <option [value]="h.idHorario">{{h.nombreHorario}}</option> }
+                </select>
+                <i class="bi bi-check-circle-fill validation-check"></i>
+            </div>
+          </div>
+          <div class="form-group" [class.valid]="true">
+            <label>Miércoles</label>
+            <div class="input-container">
+                <select [(ngModel)]="turnoSeleccionado.idHorarioMiercoles">
+                  <option [value]="null">Descanso</option>
+                  @for (h of listaHorarios; track h.idHorario) { <option [value]="h.idHorario">{{h.nombreHorario}}</option> }
+                </select>
+                <i class="bi bi-check-circle-fill validation-check"></i>
+            </div>
+          </div>
+          <div class="form-group" [class.valid]="true">
+            <label>Jueves</label>
+            <div class="input-container">
+                <select [(ngModel)]="turnoSeleccionado.idHorarioJueves">
+                  <option [value]="null">Descanso</option>
+                  @for (h of listaHorarios; track h.idHorario) { <option [value]="h.idHorario">{{h.nombreHorario}}</option> }
+                </select>
+                <i class="bi bi-check-circle-fill validation-check"></i>
+            </div>
+          </div>
+          <div class="form-group" [class.valid]="true">
+            <label>Viernes</label>
+            <div class="input-container">
+                <select [(ngModel)]="turnoSeleccionado.idHorarioViernes">
+                  <option [value]="null">Descanso</option>
+                  @for (h of listaHorarios; track h.idHorario) { <option [value]="h.idHorario">{{h.nombreHorario}}</option> }
+                </select>
+                <i class="bi bi-check-circle-fill validation-check"></i>
+            </div>
+          </div>
+          <div class="form-group" [class.valid]="true">
+            <label>Sábado</label>
+            <div class="input-container">
+                <select [(ngModel)]="turnoSeleccionado.idHorarioSabado">
+                  <option [value]="null">Descanso</option>
+                  @for (h of listaHorarios; track h.idHorario) { <option [value]="h.idHorario">{{h.nombreHorario}}</option> }
+                </select>
+                <i class="bi bi-check-circle-fill validation-check"></i>
+            </div>
+          </div>
+          <div class="form-group" [class.valid]="true">
+            <label>Domingo</label>
+            <div class="input-container">
+                <select [(ngModel)]="turnoSeleccionado.idHorarioDomingo">
+                  <option [value]="null">Descanso</option>
+                  @for (h of listaHorarios; track h.idHorario) { <option [value]="h.idHorario">{{h.nombreHorario}}</option> }
+                </select>
+                <i class="bi bi-check-circle-fill validation-check"></i>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secundario" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn-primario" (click)="guardar()">Guardar Turno</button>
     </div>
   </div>
 </div>

@@ -1,151 +1,179 @@
-<div class="marcaciones-container">
+<h2 class="page-title-blue">Auditoría de Asistencias</h2>
+<div class="header-inline-left">
+  <button class="btn-action-blue" (click)="abrirModalCrear()">+ Registrar Marcación Manual</button>
+</div>
 
-  <div class="header-seccion">
-    <h2>Registro General de Marcaciones (Auditoría)</h2>
-    <button class="btn-agregar" (click)="abrirModalCrear()">
-      <i class="bi bi-bookmark-plus-fill"></i> Registrar Marcación
-    </button>
-  </div>
-
-  <table class="tabla-marcaciones">
+<div class="table-card-modern">
+  <table class="styled-table">
     <thead>
       <tr>
         <th>ID</th>
         <th>Trabajador</th>
         <th>Fecha</th>
         <th>Entrada</th>
-        <th>Salida Almuerzo</th>
-        <th>Retorno Almuerzo</th>
+        <th>Almuerzo</th>
+        <th>Retorno</th>
         <th>Salida</th>
+        <th>Acciones</th>
       </tr>
     </thead>
     <tbody>
       @for (m of listaMarcaciones; track m.idMarcacion) {
-        <tr class="fila-click" (click)="verDetalle(m)">
+        <tr>
           <td>{{ m.idMarcacion }}</td>
-          <td><strong>{{ m.empleado?.nombres }} {{ m.empleado?.apellidos }}</strong></td>
+          <td class="bold-text">{{ m.empleado?.nombres }} {{ m.empleado?.apellidos }}</td>
           <td>{{ m.fecha | date:'dd/MM/yyyy' }}</td>
-          <td class="text-success">{{ m.horaEntrada || '---' }}</td>
-          <td class="text-warning">{{ m.inicioDescanso || '---' }}</td>
-          <td class="text-warning">{{ m.finDescanso || '---' }}</td>
-          <td class="text-danger">{{ m.horaSalida || '---' }}</td>
+          <td class="text-success">{{ m.horaEntrada || '--:--' }}</td>
+          <td>{{ m.inicioDescanso || '--:--' }}</td>
+          <td>{{ m.finDescanso || '--:--' }}</td>
+          <td class="text-danger">{{ m.horaSalida || '--:--' }}</td>
+          <td class="acciones">
+            <button class="btn-icon-edit" (click)="verDetalle(m); activarEdicion()" title="Editar">
+                <i class="bi bi-pencil-fill"></i>
+            </button>
+            <button class="btn-icon-delete" (click)="eliminar(m.idMarcacion!)" title="Eliminar">
+                <i class="bi bi-trash3-fill"></i>
+            </button>
+          </td>
         </tr>
       } @empty {
         <tr>
-          <td colspan="7" class="no-data">No se registran marcas diarias en la base de datos.</td>
+          <td colspan="8" class="no-data">Cargando registros de asistencia diaria...</td>
         </tr>
       }
     </tbody>
   </table>
 </div>
 
+<!-- MODAL REGISTRAR MARCACIÓN MANUAL -->
 @if (mostrarModalCrear) {
 <div class="modal-backdrop">
-  <div class="modal-imagen-estilo">
-    <div class="modal-top-bar">
-      <h3>Registrar Marcación</h3>
-      <span class="close-x" (click)="mostrarModalCrear = false">&times;</span>
+  <div class="modal-content-solid">
+    <div class="modal-header">
+        <h3>Registrar Nuevo Ingreso</h3>
+        <span class="close-btn" (click)="mostrarModalCrear = false">&times;</span>
     </div>
+    <div class="modal-body">
+        <div class="form-group full-width" [class.valid]="formularioManual.idEmpleado > 0">
+            <label>Seleccionar Trabajador</label>
+            <div class="input-container">
+                <select [(ngModel)]="formularioManual.idEmpleado">
+                  <option [value]="0" disabled>-- Elija un colaborador --</option>
+                  @for (emp of listaEmpleados; track emp.idEmpleado) {
+                    <option [value]="emp.idEmpleado">{{ emp.apellidos }}, {{ emp.nombres }}</option>
+                  }
+                </select>
+                <i class="bi bi-check-circle-fill validation-check"></i>
+            </div>
+        </div>
 
-    <div class="modal-body-content">
-      <label class="label-titulo">Trabajador</label>
-      <div class="search-input-group">
-        <select [(ngModel)]="formularioManual.idEmpleado">
-          <option [value]="0" disabled selected>-- Busque o seleccione el trabajador --</option>
-          @for (emp of listaEmpleados; track emp.idEmpleado) {
-            <option [value]="emp.idEmpleado">{{ emp.nombres }} {{ emp.apellidos }}</option>
-          }
-        </select>
-        <button class="btn-search-icon"><i class="bi bi-search"></i></button>
-      </div>
+        <div class="form-group full-width" [class.valid]="formularioManual.fecha">
+            <label>Fecha de Asistencia</label>
+            <div class="input-container">
+                <input type="date" [(ngModel)]="formularioManual.fecha">
+                <i class="bi bi-check-circle-fill validation-check"></i>
+            </div>
+        </div>
 
-      <div class="form-row-full">
-        <label class="label-titulo">Fecha de Asistencia</label>
-        <input type="date" [(ngModel)]="formularioManual.fecha">
-      </div>
-
-      <div class="grid-dos-columnas">
-        <div class="field-box">
-          <label class="label-titulo">Hora de entrada</label>
-          <div class="time-input-wrapper">
-            <input type="time" [(ngModel)]="formularioManual.horaEntrada">
-            <i class="bi bi-check-circle-fill icon-check"></i>
+        <div class="form-row">
+          <div class="form-group" [class.valid]="formularioManual.horaEntrada">
+            <label>Hora de Entrada</label>
+            <div class="input-container">
+                <input type="time" [(ngModel)]="formularioManual.horaEntrada">
+                <i class="bi bi-check-circle-fill validation-check"></i>
+            </div>
+          </div>
+          <div class="form-group" [class.valid]="formularioManual.horaSalida">
+            <label>Hora de Salida</label>
+            <div class="input-container">
+                <input type="time" [(ngModel)]="formularioManual.horaSalida">
+                <i class="bi bi-check-circle-fill validation-check"></i>
+            </div>
           </div>
         </div>
 
-        <div class="field-box">
-          <label class="label-titulo">Hora de salida</label>
-          <div class="time-input-wrapper">
-            <input type="time" [(ngModel)]="formularioManual.horaSalida">
-            <i class="bi bi-check-circle-fill icon-check"></i>
+        <div class="form-row">
+            <div class="form-group" [class.valid]="formularioManual.horaDescanso">
+              <label>Inicio Almuerzo</label>
+              <div class="input-container">
+                  <input type="time" [(ngModel)]="formularioManual.horaDescanso">
+                  <i class="bi bi-check-circle-fill validation-check"></i>
+              </div>
+            </div>
+            <div class="form-group" [class.valid]="formularioManual.horaRegreso">
+              <label>Fin Almuerzo</label>
+              <div class="input-container">
+                  <input type="time" [(ngModel)]="formularioManual.horaRegreso">
+                  <i class="bi bi-check-circle-fill validation-check"></i>
+              </div>
+            </div>
           </div>
-        </div>
-
-        <div class="field-box">
-          <label class="label-titulo">Hora de descanso</label>
-          <div class="time-input-wrapper">
-            <input type="time" [(ngModel)]="formularioManual.horaDescanso">
-            <i class="bi bi-check-circle-fill icon-check"></i>
-          </div>
-        </div>
-
-        <div class="field-box">
-          <label class="label-titulo">Hora de regreso</label>
-          <div class="time-input-wrapper">
-            <input type="time" [(ngModel)]="formularioManual.horaRegreso">
-            <i class="bi bi-check-circle-fill icon-check"></i>
-          </div>
-        </div>
-      </div>
     </div>
-
-    <div class="modal-buttons">
-      <button class="btn-cancelar" (click)="mostrarModalCrear = false">Cancelar</button>
-      <button class="btn-guardar" (click)="guardarMarcacionManual()">Guardar Bloque</button>
+    <div class="modal-footer">
+      <button class="btn-secundario" (click)="mostrarModalCrear = false">Cancelar</button>
+      <button class="btn-primario" (click)="guardarMarcacionManual()">Guardar Registro</button>
     </div>
   </div>
 </div>
 }
 
+<!-- MODAL DETALLE / EDICIÓN -->
 @if (mostrarModalDetalle) {
 <div class="modal-backdrop">
-  <div class="modal">
-    <div class="modal-header-actions">
-      <h3>Detalle del Registro #{{ marcacionSeleccionada.idMarcacion }}</h3>
-      <button class="btn-edit-icon" [class.activo]="modoEdicion" title="Editar Registro" (click)="activarEdicion()">
-        <i class="bi bi-pencil-square"></i>
-      </button>
+  <div class="modal-content-solid">
+    <div class="modal-header">
+        <h3>{{ modoEdicion ? 'Corregir Marcación' : 'Detalle de Asistencia' }}</h3>
+        <span class="close-btn" (click)="mostrarModalDetalle = false">&times;</span>
     </div>
+    <div class="modal-body">
+        <div class="form-group full-width valid">
+            <label>Trabajador</label>
+            <div class="input-container">
+                <input type="text" [value]="marcacionSeleccionada.empleado?.nombres + ' ' + marcacionSeleccionada.empleado?.apellidos" disabled>
+                <i class="bi bi-check-circle-fill validation-check"></i>
+            </div>
+        </div>
 
-    <label>Trabajador:</label>
-    <input type="text" [value]="marcacionSeleccionada.empleado?.nombres + ' ' + marcacionSeleccionada.empleado?.apellidos" disabled>
+        <div class="form-row">
+            <div class="form-group" [class.valid]="marcacionSeleccionada.horaEntrada">
+                <label>Hora Entrada</label>
+                <div class="input-container">
+                    <input type="time" [(ngModel)]="marcacionSeleccionada.horaEntrada" [disabled]="!modoEdicion">
+                    <i class="bi bi-check-circle-fill validation-check"></i>
+                </div>
+            </div>
+            <div class="form-group" [class.valid]="marcacionSeleccionada.horaSalida">
+                <label>Hora Salida</label>
+                <div class="input-container">
+                    <input type="time" [(ngModel)]="marcacionSeleccionada.horaSalida" [disabled]="!modoEdicion">
+                    <i class="bi bi-check-circle-fill validation-check"></i>
+                </div>
+            </div>
+        </div>
 
-    <label>Fecha de Asistencia:</label>
-    <input type="text" [value]="marcacionSeleccionada.fecha | date:'dd/MM/yyyy'" disabled>
-
-    <div class="grid-dos-columnas" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
-      <div>
-        <label>Hora Entrada:</label>
-        <input type="time" [(ngModel)]="marcacionSeleccionada.horaEntrada" [disabled]="!modoEdicion">
-      </div>
-      <div>
-        <label>Hora Salida:</label>
-        <input type="time" [(ngModel)]="marcacionSeleccionada.horaSalida" [disabled]="!modoEdicion">
-      </div>
-      <div>
-        <label>Inicio Almuerzo:</label>
-        <input type="time" [(ngModel)]="marcacionSeleccionada.inicioDescanso" [disabled]="!modoEdicion">
-      </div>
-      <div>
-        <label>Fin Almuerzo:</label>
-        <input type="time" [(ngModel)]="marcacionSeleccionada.finDescanso" [disabled]="!modoEdicion">
-      </div>
+        <div class="form-row">
+            <div class="form-group" [class.valid]="marcacionSeleccionada.inicioDescanso">
+                <label>Inicio Almuerzo</label>
+                <div class="input-container">
+                    <input type="time" [(ngModel)]="marcacionSeleccionada.inicioDescanso" [disabled]="!modoEdicion">
+                    <i class="bi bi-check-circle-fill validation-check"></i>
+                </div>
+            </div>
+            <div class="form-group" [class.valid]="marcacionSeleccionada.finDescanso">
+                <label>Fin Almuerzo</label>
+                <div class="input-container">
+                    <input type="time" [(ngModel)]="marcacionSeleccionada.finDescanso" [disabled]="!modoEdicion">
+                    <i class="bi bi-check-circle-fill validation-check"></i>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div class="modal-buttons" style="margin-top: 15px;">
-      <button class="btn-cancelar" (click)="mostrarModalDetalle = false">Cerrar</button>
+    <div class="modal-footer">
+      <button class="btn-secundario" (click)="mostrarModalDetalle = false">Cerrar</button>
       @if (modoEdicion) {
-        <button class="btn-guardar" (click)="guardarCambiosMarcacion()">Aplicar Corrección</button>
+        <button class="btn-primario" (click)="guardarCambiosMarcacion()">Aplicar Cambios</button>
+      } @else {
+        <button class="btn-primario" (click)="activarEdicion()">Habilitar Edición</button>
       }
     </div>
   </div>

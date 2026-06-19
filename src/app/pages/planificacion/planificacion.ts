@@ -1,10 +1,10 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AsistenciaService } from '../../services/asistencia';
-import { EmpleadoService } from '../../services/empleado'; // <-- Inyectamos tu servicio real
-import { Turno, Planificacion } from '../../models/asistencia';
-import { Empleado } from '../../models/empleado'; // <-- Importamos tu interfaz Empleado
+import { EmpleadoService } from '../../services/empleado';
+import { Planificacion, Turno } from '../../models/asistencia';
+import { Empleado } from '../../models/empleado';
 
 @Component({
   selector: 'app-planificaciones',
@@ -15,87 +15,93 @@ import { Empleado } from '../../models/empleado'; // <-- Importamos tu interfaz 
 })
 export class Planificaciones implements OnInit {
   private asistenciaService = inject(AsistenciaService);
-  private empleadoService = inject(EmpleadoService); // <-- Inyección limpia del servicio
+  private empleadoService = inject(EmpleadoService);
+  private cd = inject(ChangeDetectorRef);
 
   listaPlanificaciones: Planificacion[] = [];
+  listaEmpleados: Empleado[] = [];
   listaTurnos: Turno[] = [];
-  listaEmpleados: Empleado[] = []; // <-- Cambiado de any[] a Empleado[]
-  mostrarModalCrear = false;
+  mostrarModal = false;
+  modoEdicion = false;
 
-  nuevoPlan: Planificacion = {
+  planSeleccionada: Planificacion = {
+    idPlanificacion: 0,
     idEmpleado: 0,
     idTurno: 0,
     fechaInicio: '',
-    fechaFin: ''
+    fechaFin: '',
+    estado: true
   };
 
   ngOnInit(): void {
     this.cargarPlanificaciones();
-    this.cargarTurnos();
-    this.cargarEmpleados();
+    this.cargarDatosMaestros();
   }
 
   cargarPlanificaciones(): void {
     this.asistenciaService.getPlanificaciones().subscribe({
-      next: (data) => this.listaPlanificaciones = data,
-      error: (err) => console.error('Error al cargar planificaciones:', err)
-    });
-  }
-
-  cargarTurnos(): void {
-    this.asistenciaService.getTurnos().subscribe({
-      next: (data) => this.listaTurnos = data,
-      error: (err) => console.error('Error al cargar turnos:', err)
-    });
-  }
-
-  cargarEmpleados(): void {
-    // Llamamos a tu servicio real de la base de datos
-    this.empleadoService.listar().subscribe({
       next: (data) => {
-        // Filtramos para asignar turnos solo a empleados activos
-        this.listaEmpleados = data.filter(emp => emp.estado === true);
+        this.listaPlanificaciones = [...data];
+        this.cd.detectChanges();
       },
-      error: (err) => console.error('Error al cargar empleados reales:', err)
+      error: (err) => console.error(err)
     });
+  }
+
+  cargarDatosMaestros(): void {
+    this.empleadoService.listar().subscribe(data => this.listaEmpleados = data);
+    this.asistenciaService.getTurnos().subscribe(data => this.listaTurnos = data);
   }
 
   abrirModalCrear(): void {
-    this.resetFormulario();
-    this.mostrarModalCrear = true;
+    this.planSeleccionada = { idPlanificacion: 0, idEmpleado: 0, idTurno: 0, fechaInicio: '', fechaFin: '', estado: true };
+    this.modoEdicion = false;
+    this.mostrarModal = true;
   }
 
-  cerrarModalCrear(): void {
-    this.mostrarModalCrear = false;
+  editar(p: Planificacion): void {
+    this.planSeleccionada = { ...p };
+    this.modoEdicion = true;
+    this.mostrarModal = true;
   }
 
-  guardarPlanificacion(): void {
-    if (!this.nuevoPlan.idEmpleado || !this.nuevoPlan.idTurno || !this.nuevoPlan.fechaInicio || !this.nuevoPlan.fechaFin) {
-      alert('Por favor, complete todos los campos obligatorios.');
+  cerrarModal(): void {
+    this.mostrarModal = false;
+  }
+
+  guardar(): void {
+    if (!this.planSeleccionada.idEmpleado || !this.planSeleccionada.idTurno || !this.planSeleccionada.fechaInicio) {
+      alert('Empleado, Turno e Inicio son obligatorios.');
       return;
     }
 
-    if (new Date(this.nuevoPlan.fechaInicio) > new Date(this.nuevoPlan.fechaFin)) {
-      alert('La fecha de inicio no puede ser mayor que la fecha de fin.');
-      return;
+    if (this.modoEdicion) {
+      this.asistenciaService.editarPlanificacion(this.planSeleccionada.idPlanificacion!, this.planSeleccionada).subscribe({
+        next: () => {
+          alert('Planificación actualizada');
+          this.mostrarModal = false;
+          this.cargarPlanificaciones();
+        },
+        error: (err) => alert('Error al editar')
+      });
+    } else {
+      this.asistenciaService.crearPlanificacion(this.planSeleccionada).subscribe({
+        next: () => {
+          alert('Planificación creada');
+          this.mostrarModal = false;
+          this.cargarPlanificaciones();
+        },
+        error: (err) => alert('Error al crear')
+      });
     }
-
-    this.asistenciaService.crearPlanificacion(this.nuevoPlan).subscribe({
-      next: (res) => {
-        alert(res.mensaje || 'Planificación guardada con éxito.');
-        this.mostrarModalCrear = false;
-        this.cargarPlanificaciones();
-      },
-      error: (err) => alert(err.error || 'Error al guardar la planificación.')
-    });
   }
 
-  resetFormulario(): void {
-    this.nuevoPlan = {
-      idEmpleado: 0,
-      idTurno: 0,
-      fechaInicio: '',
-      fechaFin: ''
-    };
+  eliminar(id: number): void {
+    if (confirm('¿Desactivar esta planificación?')) {
+      this.asistenciaService.eliminarPlanificacion(id).subscribe({
+        next: () => this.cargarPlanificaciones(),
+        error: (err) => alert('Error al desactivar')
+      });
+    }
   }
 }

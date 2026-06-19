@@ -1,7 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AsistenciaService } from '../../services/asistencia';
+import { MarcacionService } from '../../services/marcacion';
 import { EmpleadoService } from '../../services/empleado';
 import { Empleado } from '../../models/empleado';
 
@@ -27,8 +27,9 @@ export interface MarcacionReg {
   styleUrl: './marcacion.css'
 })
 export class Marcacion implements OnInit {
-  private asistenciaService = inject(AsistenciaService);
+  private marcacionService = inject(MarcacionService);
   private empleadoService = inject(EmpleadoService);
+  private cd = inject(ChangeDetectorRef);
 
   listaMarcaciones: MarcacionReg[] = [];
   listaEmpleados: Empleado[] = [];
@@ -57,18 +58,23 @@ export class Marcacion implements OnInit {
   }
 
   cargarMarcaciones(): void {
-    this.asistenciaService.getMarcaciones().subscribe({
-      next: (res) => {
-        this.listaMarcaciones = res;
+    this.marcacionService.getMarcaciones().subscribe({
+      next: (res: any[]) => {
+        console.log('Marcaciones cargadas:', res);
+        this.listaMarcaciones = res && res.length > 0 ? [...res] : [];
+        this.cd.detectChanges();
       },
-      error: (err) => console.error('Error al cargar marcas:', err)
+      error: (err: any) => console.error('Error al cargar marcas:', err)
     });
   }
 
   cargarEmpleados(): void {
     this.empleadoService.listar().subscribe({
-      next: (data) => this.listaEmpleados = data.filter(e => e.estado === true),
-      error: (err) => console.error(err)
+      next: (data: Empleado[]) => {
+        this.listaEmpleados = data.filter(e => e.estado === true);
+        this.cd.detectChanges();
+      },
+      error: (err: any) => console.error(err)
     });
   }
 
@@ -84,43 +90,30 @@ export class Marcacion implements OnInit {
       return;
     }
 
-    // Armamos el payload exacto para la fila consolidada en base de datos
-    const payload: MarcacionReg = {
+    const payload: any = {
       idEmpleado: Number(f.idEmpleado),
       fecha: f.fecha,
       horaEntrada: f.horaEntrada ? `${f.horaEntrada}:00` : null,
       horaSalida: f.horaSalida ? `${f.horaSalida}:00` : null,
       inicioDescanso: f.horaDescanso ? `${f.horaDescanso}:00` : null,
-      finDescanso: f.horaRegreso ? `${f.horaRegreso}:00` : null,
-      latitud: null,
-      longitud: null,
-      foto: null
+      finDescanso: f.horaRegreso ? `${f.horaRegreso}:00` : null
     };
 
-    // Procesamos el envío directo al backend (.NET)
-    this.registrarAsistenciaEnServicio(payload);
-  }
+    console.log('Enviando marcación manual:', payload);
 
-  registrarAsistenciaEnServicio(payload: any) {
-    fetch('https://localhost:7084/api/Marcaciones', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
-    .then(res => {
-      if (res.ok) {
-        return res.json().then(data => {
-          alert(data.mensaje || 'Guardado con éxito.');
-          this.mostrarModalCrear = false;
-          this.cargarMarcaciones();
-        });
-      } else {
-        return res.text().then(text => {
-          alert(text || 'El trabajador ya tiene marcaciones en esta fecha.');
-        });
+    this.marcacionService.registrar(payload).subscribe({
+      next: (res: any) => {
+        console.log('Respuesta exitosa del servidor:', res);
+        alert(res.mensaje || 'Guardado con éxito.');
+        this.mostrarModalCrear = false;
+        this.cargarMarcaciones();
+      },
+      error: (err: any) => {
+        console.error('Error al registrar marcación:', err);
+        const msg = err.error?.mensaje || err.error || 'El trabajador ya tiene marcaciones en esta fecha o error en el servidor.';
+        alert(msg);
       }
-    })
-    .catch(() => alert('Error de conexión con el servidor de Base de Datos.'));
+    });
   }
 
   verDetalle(marca: MarcacionReg) {
@@ -134,10 +127,23 @@ export class Marcacion implements OnInit {
   }
 
   guardarCambiosMarcacion() {
-    // Aquí puedes meter la llamada fetch con método 'PUT' en el futuro
-    alert('Registro corregido con éxito.');
-    this.mostrarModalDetalle = false;
-    this.cargarMarcaciones();
+    this.marcacionService.editar(this.marcacionSeleccionada.idMarcacion!, this.marcacionSeleccionada).subscribe({
+      next: () => {
+        alert('Registro corregido con éxito.');
+        this.mostrarModalDetalle = false;
+        this.cargarMarcaciones();
+      },
+      error: () => alert('Error al actualizar registro.')
+    });
+  }
+
+  eliminar(id: number) {
+    if (confirm('¿Desea desactivar este registro de asistencia?')) {
+      this.marcacionService.eliminar(id).subscribe({
+        next: () => this.cargarMarcaciones(),
+        error: () => alert('Error al eliminar.')
+      });
+    }
   }
 
   resetFormulario() {

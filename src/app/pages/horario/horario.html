@@ -1,13 +1,10 @@
-<div class="horarios-container">
+<h2 class="page-title-blue">Gestión de Bloques Horarios</h2>
+<div class="header-inline-left">
+  <button class="btn-action-blue" (click)="abrirModalCrear()">+ Nuevo Horario</button>
+</div>
 
-  <div class="header-seccion">
-    <h2>Gestión de Bloques de Horarios</h2>
-    <button class="btn-agregar" (click)="abrirModalCrear()">
-      <i class="bi bi-clock-fill"></i> Nuevo Horario
-    </button>
-  </div>
-
-  <table class="tabla-horarios">
+<div class="table-card-modern">
+  <table class="styled-table">
     <thead>
       <tr>
         <th>ID</th>
@@ -17,64 +14,99 @@
         <th>Inicio Ref.</th>
         <th>Fin Ref.</th>
         <th>Tolerancia</th>
+        <th>Acciones</th>
       </tr>
     </thead>
     <tbody>
-  @for (horario of listaHorarios; track horario.idHorario) {
-    <tr>
-      <td>{{ horario.idHorario }}</td>
-      <td><strong>{{ horario.nombreHorario }}</strong></td>
-      <td>{{ horario.horaEntrada }}</td>
-      <td>{{ horario.horaSalida }}</td>
-      <td>{{ horario.horaRefrigerio || '---' }}</td>
-      <td>{{ horario.horaFinRefrigerio || '---' }}</td>
-      <td><span class="badge-tolerancia">{{ horario.toleranciaMinutos }} min</span></td>
-    </tr>
-  } @empty {
-    <tr>
-      <td colspan="7" class="no-data">No hay horarios registrados en el sistema.</td>
-    </tr>
-  }
-</tbody>
+      @for (h of listaHorarios; track h.idHorario) {
+        <tr>
+          <td>{{ h.idHorario }}</td>
+          <td class="bold-text">{{ h.nombreHorario }}</td>
+          <td>{{ h.horaEntrada }}</td>
+          <td>{{ h.horaSalida }}</td>
+          <td>{{ h.horaRefrigerio || '---' }}</td>
+          <td>{{ h.horaFinRefrigerio || '---' }}</td>
+          <td><span class="status-pill active">{{ h.toleranciaMinutos }} min</span></td>
+          <td class="acciones">
+            <button class="btn-icon-edit" (click)="editar(h)" title="Editar">
+                <i class="bi bi-pencil-square"></i>
+            </button>
+            <button class="btn-icon-delete" (click)="eliminar(h.idHorario!)" title="Inactivar">
+                <i class="bi bi-trash-fill"></i>
+            </button>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="8" class="no-data">No hay horarios registrados.</td>
+        </tr>
+      }
+    </tbody>
   </table>
 </div>
 
-@if (mostrarModalCrear) {
+<!-- MODAL REDISEÑADO HORARIO -->
+@if (mostrarModal) {
 <div class="modal-backdrop">
-  <div class="modal">
-    <h3>Registrar Nuevo Bloque de Horario</h3>
-
-    <label>Nombre del Horario:</label>
-    <input type="text" [(ngModel)]="nuevoHorario.nombreHorario" placeholder="Ej: Turno Mañana u Oficina">
-
-    <div class="form-row">
-      <div>
-        <label>Hora Entrada:</label>
-        <input type="time" [(ngModel)]="nuevoHorario.horaEntrada">
-      </div>
-      <div>
-        <label>Hora Salida:</label>
-        <input type="time" [(ngModel)]="nuevoHorario.horaSalida">
-      </div>
+  <div class="modal-content-solid">
+    <div class="modal-header">
+        <h3>{{ modoEdicion ? 'Editar Horario' : 'Registrar Nuevo Horario' }}</h3>
+        <span class="close-btn" (click)="cerrarModal()">&times;</span>
     </div>
+    <div class="modal-body">
+        <div class="form-group full-width" [class.valid]="horarioSeleccionado.nombreHorario">
+            <label>Nombre del Horario:</label>
+            <div class="input-container">
+                <input type="text" [(ngModel)]="horarioSeleccionado.nombreHorario" placeholder="Ej: Turno Mañana">
+                <i class="bi bi-check-circle-fill validation-check"></i>
+            </div>
+        </div>
 
-    <div class="form-row">
-      <div>
-        <label>Inicio Refrigerio (Opcional):</label>
-        <input type="time" [(ngModel)]="nuevoHorario.horaRefrigerio">
-      </div>
-      <div>
-        <label>Fin Refrigerio (Opcional):</label>
-        <input type="time" [(ngModel)]="nuevoHorario.horaFinRefrigerio">
-      </div>
+        <div class="form-row">
+            <div class="form-group" [class.valid]="horarioSeleccionado.horaEntrada">
+                <label>Hora Entrada:</label>
+                <div class="input-container">
+                    <input type="time" [(ngModel)]="horarioSeleccionado.horaEntrada">
+                    <i class="bi bi-check-circle-fill validation-check"></i>
+                </div>
+            </div>
+            <div class="form-group" [class.valid]="horarioSeleccionado.horaSalida">
+                <label>Hora Salida:</label>
+                <div class="input-container">
+                    <input type="time" [(ngModel)]="horarioSeleccionado.horaSalida">
+                    <i class="bi bi-check-circle-fill validation-check"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group" [class.valid]="horarioSeleccionado.horaRefrigerio">
+                <label>Inicio Refrigerio:</label>
+                <div class="input-container">
+                    <input type="time" [(ngModel)]="horarioSeleccionado.horaRefrigerio">
+                    <i class="bi bi-check-circle-fill validation-check"></i>
+                </div>
+            </div>
+            <div class="form-group" [class.valid]="horarioSeleccionado.horaFinRefrigerio">
+                <label>Fin Refrigerio:</label>
+                <div class="input-container">
+                    <input type="time" [(ngModel)]="horarioSeleccionado.horaFinRefrigerio">
+                    <i class="bi bi-check-circle-fill validation-check"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group full-width" [class.valid]="horarioSeleccionado.toleranciaMinutos >= 0">
+            <label>Tolerancia (Minutos):</label>
+            <div class="input-container">
+                <input type="number" [(ngModel)]="horarioSeleccionado.toleranciaMinutos">
+                <i class="bi bi-check-circle-fill validation-check"></i>
+            </div>
+        </div>
     </div>
-
-    <label>Tolerancia de Entrada (Minutos):</label>
-    <input type="number" [(ngModel)]="nuevoHorario.toleranciaMinutos" min="0">
-
-    <div class="modal-buttons">
-      <button class="btn-cancelar" (click)="cerrarModalCrear()">Cancelar</button>
-      <button class="btn-guardar" (click)="guardarHorario()">Guardar Horario</button>
+    <div class="modal-footer">
+      <button class="btn-secundario" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn-primario" (click)="guardar()">Guardar Cambios</button>
     </div>
   </div>
 </div>

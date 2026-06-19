@@ -1,18 +1,15 @@
-<div class="usuarios-container">
+<h2 class="page-title-blue">Seguridad de Acceso</h2>
+<div class="header-inline-left">
+  <button class="btn-action-blue" (click)="abrirModalCrear()">+ Agregar Acceso</button>
+</div>
 
-  <div class="header-seccion">
-    <h2>Gestión de Usuarios con Acceso</h2>
-    <button class="btn-agregar" (click)="abrirModalCrear()">
-      <i class="bi bi-person-plus-fill"></i> Agregar Usuario
-    </button>
-  </div>
-
-  <table class="tabla-usuarios">
+<div class="table-card-modern">
+  <table class="styled-table">
     <thead>
       <tr>
         <th>ID</th>
         <th>Nombre de Usuario</th>
-        <th>Rol Asignado</th>
+        <th>Rol / Permisos</th>
         <th>Acciones</th>
       </tr>
     </thead>
@@ -20,53 +17,69 @@
       @for (user of listaUsuarios; track user.idUsuario) {
         <tr>
           <td>{{ user.idUsuario }}</td>
-          <td>{{ user.usuarioNombre }}</td> <td><span class="badge-rol">{{ user.rol }}</span></td>
+          <td class="bold-text">{{ user.usuarioNombre }}</td>
+          <td><span class="status-pill active">{{ user.rol }}</span></td>
           <td class="acciones">
-            <button class="btn-icon editar" title="Editar Rol" (click)="abrirModalEditar(user)">
-              <i class="bi bi-pencil-square"></i>
-            </button>
-            <button class="btn-icon eliminar" title="Desactivar Acceso" (click)="desactivarUsuario(user.idUsuario)">
-              <i class="bi bi-shield-x"></i>
-            </button>
+            <button class="btn-icon-edit" (click)="abrirModalEditar(user)"><i class="bi bi-pencil-square"></i></button>
+            <button class="btn-icon-delete" (click)="desactivarUsuario(user.idUsuario!)"><i class="bi bi-shield-x"></i></button>
           </td>
-        </tr>
-      } @empty {
-        <tr>
-          <td colspan="4" class="no-data">No hay usuarios activos con acceso al sistema.</td>
         </tr>
       }
     </tbody>
   </table>
 </div>
 
+<!-- MODAL REDISEÑADO USUARIO -->
 @if (mostrarModalCrear) {
 <div class="modal-backdrop">
-  <div class="modal">
-    <h3>Registrar Acceso al Sistema</h3>
-
-    <label>Seleccionar Empleado:</label>
-    <select [(ngModel)]="nuevoUsuario.idEmpleado">
-      <option [value]="0" disabled selected>-- Elija un empleado --</option>
-      @for (emp of listaEmpleados; track emp.idEmpleado) {
-        <option [value]="emp.idEmpleado">{{ emp.nombres }} {{ emp.apellidos }}</option>
-      }
-    </select>
-
-    <label>Username (Usuario)</label>
-    <input type="text" [(ngModel)]="nuevoUsuario.usuarioNombre" placeholder="Ej: mrodriguez">
-
-    <label>Contraseña</label>
-    <input type="password" [(ngModel)]="nuevoUsuario.clave">
-
-    <label>Rol Inicial</label>
-    <select [(ngModel)]="nuevoUsuario.rol">
-      <option value="Usuario">Usuario</option>
-      <option value="Administrador">Administrador</option>
-    </select>
-
-    <div class="modal-buttons">
-      <button class="btn-cancelar" (click)="cerrarModalCrear()">Cancelar</button>
-      <button class="btn-guardar" (click)="guardarNuevoUsuario()">Registrar</button>
+  <div class="modal-content-solid">
+    <div class="modal-header">
+        <h3>Registrar Acceso al Sistema</h3>
+        <span class="close-btn" (click)="cerrarModalCrear()">&times;</span>
+    </div>
+    <div class="modal-body">
+        <div class="form-group full-width" [class.valid]="nuevoUsuario.idEmpleado > 0">
+            <label>Seleccionar Empleado</label>
+            <div class="input-container">
+                <select [(ngModel)]="nuevoUsuario.idEmpleado">
+                    <option [value]="0" disabled>-- Seleccione --</option>
+                    @for (emp of listaEmpleados; track emp.idEmpleado) {
+                        <option [value]="emp.idEmpleado">{{ emp.nombres }} {{ emp.apellidos }}</option>
+                    }
+                </select>
+                <i class="bi bi-check-circle-fill validation-check"></i>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group" [class.valid]="nuevoUsuario.usuarioNombre">
+                <label>Nombre de Usuario</label>
+                <div class="input-container">
+                    <input type="text" [(ngModel)]="nuevoUsuario.usuarioNombre" placeholder="Ej: jdoe">
+                    <i class="bi bi-check-circle-fill validation-check"></i>
+                </div>
+            </div>
+            <div class="form-group" [class.valid]="nuevoUsuario.rol">
+                <label>Rol</label>
+                <div class="input-container">
+                    <select [(ngModel)]="nuevoUsuario.rol">
+                        <option value="Administrador">Administrador</option>
+                        <option value="Usuario">Usuario</option>
+                    </select>
+                    <i class="bi bi-check-circle-fill validation-check"></i>
+                </div>
+            </div>
+        </div>
+        <div class="form-group full-width" [class.valid]="nuevoUsuario.clave && nuevoUsuario.clave.length >= 6">
+            <label>Contraseña</label>
+            <div class="input-container">
+                <input type="password" [(ngModel)]="nuevoUsuario.clave" placeholder="Mínimo 6 caracteres">
+                <i class="bi bi-check-circle-fill validation-check"></i>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secundario" (click)="cerrarModalCrear()">Cancelar</button>
+      <button class="btn-primario" (click)="guardarNuevoUsuario()">Guardar Acceso</button>
     </div>
   </div>
 </div>
@@ -74,17 +87,33 @@
 
 @if (mostrarModalEditar) {
 <div class="modal-backdrop">
-  <div class="modal">
-    <h3>Modificar Rol de Usuario</h3>
-    <p>Usuario: <strong>{{ usuarioSeleccionado.usuarioNombre }}</strong></p> <label>Cambiar Rol</label>
-    <select [(ngModel)]="usuarioSeleccionado.rol">
-      <option value="Usuario">Usuario</option>
-      <option value="Administrador">Administrador</option>
-    </select>
-
-    <div class="modal-buttons">
-      <button class="btn-cancelar" (click)="cerrarModalEditar()">Cancelar</button>
-      <button class="btn-guardar" (click)="guardarCambioRol()">Guardar Cambios</button>
+  <div class="modal-content-solid">
+    <div class="modal-header">
+        <h3>Modificar Rol</h3>
+        <span class="close-btn" (click)="cerrarModalEditar()">&times;</span>
+    </div>
+    <div class="modal-body">
+        <div class="form-group full-width valid">
+            <label>Usuario Seleccionado</label>
+            <div class="input-container">
+                <input type="text" [value]="usuarioSeleccionado.usuarioNombre" disabled>
+                <i class="bi bi-check-circle-fill validation-check"></i>
+            </div>
+        </div>
+        <div class="form-group full-width valid">
+            <label>Asignar Nuevo Rol</label>
+            <div class="input-container">
+                <select [(ngModel)]="usuarioSeleccionado.rol">
+                    <option value="Administrador">Administrador</option>
+                    <option value="Usuario">Usuario</option>
+                </select>
+                <i class="bi bi-check-circle-fill validation-check"></i>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secundario" (click)="cerrarModalEditar()">Cancelar</button>
+      <button class="btn-primario" (click)="guardarCambioRol()">Actualizar</button>
     </div>
   </div>
 </div>

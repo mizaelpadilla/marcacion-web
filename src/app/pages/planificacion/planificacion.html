@@ -1,76 +1,99 @@
-<div class="plan-container">
+<h2 class="page-title-blue">Asignación de Personal</h2>
+<div class="header-inline-left">
+  <button class="btn-action-blue" (click)="abrirModalCrear()">+ Nueva Asignación</button>
+</div>
 
-  <div class="header-seccion">
-    <h2>Planificación de Horarios de Empleados</h2>
-    <button class="btn-agregar" (click)="abrirModalCrear()">
-      <i class="bi bi-calendar-plus-fill"></i> Asignar Turno a Empleado
-    </button>
-  </div>
-
-  <table class="tabla-plan">
+<div class="table-card-modern">
+  <table class="styled-table">
     <thead>
       <tr>
         <th>ID</th>
         <th>Empleado</th>
         <th>Turno Asignado</th>
-        <th>Fecha Inicio</th>
-        <th>Fecha Fin</th>
+        <th>Desde</th>
+        <th>Hasta</th>
         <th>Estado</th>
+        <th>Acciones</th>
       </tr>
     </thead>
     <tbody>
       @for (p of listaPlanificaciones; track p.idPlanificacion) {
         <tr>
           <td>{{ p.idPlanificacion }}</td>
-          <td><strong>{{ p.empleado?.nombreCompleto || 'Empleado #' + p.idEmpleado }}</strong></td>
-          <td><span class="badge-turno">{{ p.turno?.nombreTurno || 'Turno #' + p.idTurno }}</span></td>
+          <td class="bold-text">{{ p.empleado?.nombres }} {{ p.empleado?.apellidos }}</td>
+          <td><span class="status-pill active" style="background:#e3f2fd; color:#0d47a1;">{{ p.turno?.nombreTurno }}</span></td>
           <td>{{ p.fechaInicio | date:'dd/MM/yyyy' }}</td>
-          <td>{{ p.fechaFin | date:'dd/MM/yyyy' }}</td>
+          <td>{{ p.fechaFin ? (p.fechaFin | date:'dd/MM/yyyy') : 'Indefinido' }}</td>
           <td>
-            <span class="status-pill" [class.activo]="p.estado" [class.inactivo]="!p.estado">
-              {{ p.estado ? 'Vigente' : 'Historial' }}
+            <span class="status-pill" [class.active]="p.estado">
+              {{ p.estado ? 'Vigente' : 'Inactivo' }}
             </span>
           </td>
-        </tr>
-      } @empty {
-        <tr>
-          <td colspan="6" class="no-data">No hay empleados planificados actualmente.</td>
+          <td class="acciones">
+            <button class="btn-icon-edit" (click)="editar(p)" title="Editar">
+                <i class="bi bi-pencil-square"></i>
+            </button>
+            <button class="btn-icon-delete" (click)="eliminar(p.idPlanificacion!)" title="Inactivar">
+                <i class="bi bi-trash-fill"></i>
+            </button>
+          </td>
         </tr>
       }
     </tbody>
   </table>
 </div>
 
-@if (mostrarModalCrear) {
+<!-- MODAL REDISEÑADO PLANIFICACIÓN -->
+@if (mostrarModal) {
 <div class="modal-backdrop">
-  <div class="modal">
-    <h3>Asignar Turno Semanal</h3>
+  <div class="modal-content-solid">
+    <div class="modal-header">
+        <h3>{{ modoEdicion ? 'Editar Asignación' : 'Nueva Asignación' }}</h3>
+        <span class="close-btn" (click)="cerrarModal()">&times;</span>
+    </div>
+    <div class="modal-body">
+        <div class="form-group full-width" [class.valid]="planSeleccionada.idEmpleado > 0">
+            <label>Seleccionar Colaborador:</label>
+            <div class="input-container">
+                <select [(ngModel)]="planSeleccionada.idEmpleado">
+                  <option [value]="0">-- Elegir Empleado --</option>
+                  @for (e of listaEmpleados; track e.idEmpleado) { <option [value]="e.idEmpleado">{{e.nombres}} {{e.apellidos}}</option> }
+                </select>
+                <i class="bi bi-check-circle-fill validation-check"></i>
+            </div>
+        </div>
 
-    <label>Seleccionar Empleado:</label>
-<select [(ngModel)]="nuevoPlan.idEmpleado">
-  <option [value]="0" disabled selected>-- Elija un Empleado --</option>
-  @for (emp of listaEmpleados; track emp.idEmpleado) {
-    <option [value]="emp.idEmpleado">{{ emp.nombres }} {{ emp.apellidos }} (DNI: {{ emp.dni }})</option>
-  }
-</select>
+        <div class="form-group full-width" [class.valid]="planSeleccionada.idTurno > 0">
+            <label>Seleccionar Turno Semanal:</label>
+            <div class="input-container">
+                <select [(ngModel)]="planSeleccionada.idTurno">
+                  <option [value]="0">-- Elegir Turno --</option>
+                  @for (t of listaTurnos; track t.idTurno) { <option [value]="t.idTurno">{{t.nombreTurno}}</option> }
+                </select>
+                <i class="bi bi-check-circle-fill validation-check"></i>
+            </div>
+        </div>
 
-    <label>Seleccionar Turno Horario:</label>
-    <select [(ngModel)]="nuevoPlan.idTurno">
-      <option [value]="0" disabled selected>-- Elija un Turno Semanal --</option>
-      @for (t of listaTurnos; track t.idTurno) {
-        <option [value]="t.idTurno">{{ t.nombreTurno }}</option>
-      }
-    </select>
-
-    <label>Fecha de Inicio:</label>
-    <input type="date" [(ngModel)]="nuevoPlan.fechaInicio">
-
-    <label>Fecha de Fin (Vencimiento del ciclo):</label>
-    <input type="date" [(ngModel)]="nuevoPlan.fechaFin">
-
-    <div class="modal-buttons">
-      <button class="btn-cancelar" (click)="cerrarModalCrear()">Cancelar</button>
-      <button class="btn-guardar" (click)="guardarPlanificacion()">Confirmar Asignación</button>
+        <div class="form-row">
+          <div class="form-group" [class.valid]="planSeleccionada.fechaInicio">
+            <label>Fecha de Inicio:</label>
+            <div class="input-container">
+                <input type="date" [(ngModel)]="planSeleccionada.fechaInicio">
+                <i class="bi bi-check-circle-fill validation-check"></i>
+            </div>
+          </div>
+          <div class="form-group" [class.valid]="planSeleccionada.fechaFin">
+            <label>Fecha de Fin (Opcional):</label>
+            <div class="input-container">
+                <input type="date" [(ngModel)]="planSeleccionada.fechaFin">
+                <i class="bi bi-check-circle-fill validation-check"></i>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secundario" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn-primario" (click)="guardar()">Sincronizar Cambios</button>
     </div>
   </div>
 </div>

@@ -1,19 +1,55 @@
-<div class="login-container">
+<div class="split-screen">
+  <!-- Lado Izquierdo: Información -->
+  <div class="left-side">
+    <div class="logo-area">
+      <i class="bi bi-lightbulb-fill text-orange"></i>
+      <span class="logo-text">Marcacion<strong class="text-white">Pro</strong></span>
+    </div>
 
-  <h1>Sistema de Marcación</h1>
+    <div class="info-content">
+      <h2 class="text-orange">Optimiza tu control de asistencia</h2>
+      <ul class="benefits-list">
+        <li><i class="bi bi-check-circle-fill"></i> Registra y monitorea las horas de entrada y salida en tiempo real</li>
+        <li><i class="bi bi-check-circle-fill"></i> Detecta ausencias, tardanzas y horas extra automáticamente</li>
+        <li><i class="bi bi-check-circle-fill"></i> Integra el control biométrico con tus reportes de planilla</li>
+      </ul>
+    </div>
 
-  <input
-    type="text"
-    placeholder="Usuario"
-    [(ngModel)]="usuario">
+    <p class="footer-note">Gestiona la asistencia de tu equipo con precisión, transparencia y sin esfuerzo.</p>
+  </div>
 
-  <input
-    type="password"
-    placeholder="Contraseña"
-    [(ngModel)]="clave">
+  <!-- Lado Derecho: Formulario -->
+  <div class="right-side">
+    <div class="login-card">
+      <div class="login-header">
+        <h1 class="text-orange">Hola,</h1>
+        <div class="welcome-pill">Bienvenido</div>
+        <p class="subtitle">Ingresa tus datos correspondientes</p>
+      </div>
 
-  <button (click)="iniciarSesion()">
-    Iniciar Sesión
-  </button>
+      <div class="form-body">
+        <div class="input-group">
+          <label>Usuario</label>
+          <input type="text" [(ngModel)]="usuario" placeholder="123456789" [disabled]="cargando">
+        </div>
 
+        <div class="input-group">
+          <label>Contraseña</label>
+          <div class="password-wrapper">
+            <input [type]="verClave ? 'text' : 'password'" [(ngModel)]="clave" placeholder="••••••••" [disabled]="cargando">
+            <button type="button" class="btn-toggle-eye" (click)="verClave = !verClave">
+              <i class="bi" [class.bi-eye-fill]="!verClave" [class.bi-eye-slash-fill]="verClave"></i>
+            </button>
+          </div>
+        </div>
+
+        <button class="btn-ingresar" (click)="iniciarSesion()" [disabled]="cargando">
+          <span *ngIf="!cargando">Ingresar</span>
+          <span *ngIf="cargando" class="loading-state">
+            <i class="bi bi-arrow-repeat spin"></i> Cargando...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

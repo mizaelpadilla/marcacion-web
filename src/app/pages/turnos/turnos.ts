@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AsistenciaService } from '../../services/asistencia';
@@ -13,13 +13,15 @@ import { Horario, Turno } from '../../models/asistencia';
 })
 export class Turnos implements OnInit {
   private asistenciaService = inject(AsistenciaService);
+  private cd = inject(ChangeDetectorRef);
 
   listaTurnos: Turno[] = [];
   listaHorarios: Horario[] = [];
-  mostrarModalCrear = false;
+  mostrarModal = false;
+  modoEdicion = false;
 
-  // Modelo para mapear el formulario conforme al backend
-  nuevoTurno: Turno = {
+  turnoSeleccionado: Turno = {
+    idTurno: 0,
     nombreTurno: '',
     idHorarioLunes: null,
     idHorarioMartes: null,
@@ -37,7 +39,10 @@ export class Turnos implements OnInit {
 
   cargarTurnos(): void {
     this.asistenciaService.getTurnos().subscribe({
-      next: (data) => this.listaTurnos = data,
+      next: (data) => {
+        this.listaTurnos = [...data];
+        this.cd.detectChanges();
+      },
       error: (err) => console.error('Error al cargar turnos:', err)
     });
   }
@@ -45,53 +50,78 @@ export class Turnos implements OnInit {
   cargarHorarios(): void {
     this.asistenciaService.getHorarios().subscribe({
       next: (data) => this.listaHorarios = data,
-      error: (err) => console.error('Error al cargar horarios para los selectores:', err)
+      error: (err) => console.error('Error al cargar horarios:', err)
     });
   }
 
   abrirModalCrear(): void {
     this.resetFormulario();
-    this.mostrarModalCrear = true;
+    this.modoEdicion = false;
+    this.mostrarModal = true;
   }
 
-  cerrarModalCrear(): void {
-    this.mostrarModalCrear = false;
+  editar(t: Turno): void {
+    this.turnoSeleccionado = { ...t };
+    this.modoEdicion = true;
+    this.mostrarModal = true;
   }
 
-  guardarTurno(): void {
-    if (!this.nuevoTurno.nombreTurno) {
-      alert('Por favor, asigne un nombre al turno.');
+  cerrarModal(): void {
+    this.mostrarModal = false;
+  }
+
+  guardar(): void {
+    if (!this.turnoSeleccionado.nombreTurno) {
+      alert('Nombre de turno es obligatorio.');
       return;
     }
 
-    // Conversión limpia: si seleccionan "Descanso" (value original null/cadena vacía), enviamos null a .NET
-    const limpiarId = (value: any) => {
-      return value === 'null' || value === null || value === '' ? null : Number(value);
+    const limpiarId = (v: any) => (v === 'null' || v === null || v === '') ? null : Number(v);
+
+    const payload: Turno = {
+      ...this.turnoSeleccionado,
+      idHorarioLunes: limpiarId(this.turnoSeleccionado.idHorarioLunes),
+      idHorarioMartes: limpiarId(this.turnoSeleccionado.idHorarioMartes),
+      idHorarioMiercoles: limpiarId(this.turnoSeleccionado.idHorarioMiercoles),
+      idHorarioJueves: limpiarId(this.turnoSeleccionado.idHorarioJueves),
+      idHorarioViernes: limpiarId(this.turnoSeleccionado.idHorarioViernes),
+      idHorarioSabado: limpiarId(this.turnoSeleccionado.idHorarioSabado),
+      idHorarioDomingo: limpiarId(this.turnoSeleccionado.idHorarioDomingo)
     };
 
-    const turnoPayload: Turno = {
-      nombreTurno: this.nuevoTurno.nombreTurno,
-      idHorarioLunes: limpiarId(this.nuevoTurno.idHorarioLunes),
-      idHorarioMartes: limpiarId(this.nuevoTurno.idHorarioMartes),
-      idHorarioMiercoles: limpiarId(this.nuevoTurno.idHorarioMiercoles),
-      idHorarioJueves: limpiarId(this.nuevoTurno.idHorarioJueves),
-      idHorarioViernes: limpiarId(this.nuevoTurno.idHorarioViernes),
-      idHorarioSabado: limpiarId(this.nuevoTurno.idHorarioSabado),
-      idHorarioDomingo: limpiarId(this.nuevoTurno.idHorarioDomingo)
-    };
+    if (this.modoEdicion) {
+      this.asistenciaService.editarTurno(payload.idTurno!, payload).subscribe({
+        next: () => {
+          alert('Turno actualizado');
+          this.mostrarModal = false;
+          this.cargarTurnos();
+        },
+        error: (err) => alert('Error al editar')
+      });
+    } else {
+      this.asistenciaService.crearTurno(payload).subscribe({
+        next: () => {
+          alert('Turno creado');
+          this.mostrarModal = false;
+          this.cargarTurnos();
+        },
+        error: (err) => alert('Error al crear')
+      });
+    }
+  }
 
-    this.asistenciaService.crearTurno(turnoPayload).subscribe({
-      next: (res) => {
-        alert(res.mensaje || 'Turno creado con éxito');
-        this.mostrarModalCrear = false;
-        this.cargarTurnos();
-      },
-      error: (err) => alert(err.error || 'Error al intentar guardar el turno.')
-    });
+  eliminar(id: number): void {
+    if (confirm('¿Desactivar este turno?')) {
+      this.asistenciaService.eliminarTurno(id).subscribe({
+        next: () => this.cargarTurnos(),
+        error: (err) => alert('Error al desactivar')
+      });
+    }
   }
 
   resetFormulario(): void {
-    this.nuevoTurno = {
+    this.turnoSeleccionado = {
+      idTurno: 0,
       nombreTurno: '',
       idHorarioLunes: null,
       idHorarioMartes: null,

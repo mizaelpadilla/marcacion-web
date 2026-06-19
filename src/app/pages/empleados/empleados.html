@@ -1,113 +1,111 @@
-<h2>Empleados</h2>
-
-<table>
-
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Nombres</th>
-      <th>Apellidos</th>
-      <th>DNI</th>
-      <th>Teléfono</th>
-      <th>Correo</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
-
-  <tbody>
-
-    <tr *ngFor="let emp of empleados">
-
-      <td>{{ emp.idEmpleado }}</td>
-      <td>{{ emp.nombres }}</td>
-      <td>{{ emp.apellidos }}</td>
-      <td>{{ emp.dni }}</td>
-      <td>{{ emp.telefono }}</td>
-      <td>{{ emp.correo }}</td>
-
-      <td class="acciones">
-
-        <button
-          class="btn-icon editar"
-          title="Editar"
-          (click)="editar(emp)">
-
-          <i class="bi bi-pencil-square"></i>
-
-        </button>
-
-        <button
-          class="btn-icon eliminar"
-          title="Desactivar"
-          (click)="eliminar(emp.idEmpleado)">
-
-          <i class="bi bi-trash-fill"></i>
-
-        </button>
-
-      </td>
-
-    </tr>
-
-  </tbody>
-
-</table>
-
-@if(mostrarModal){
-
-<div class="modal-backdrop">
-
-  <div class="modal">
-
-    <h3>Editar Empleado</h3>
-
-    <label>Nombres</label>
-    <input
-      type="text"
-      [(ngModel)]="empleadoSeleccionado.nombres">
-
-    <label>Apellidos</label>
-    <input
-      type="text"
-      [(ngModel)]="empleadoSeleccionado.apellidos">
-
-    <label>DNI</label>
-    <input
-      type="text"
-      [(ngModel)]="empleadoSeleccionado.dni">
-
-    <label>Teléfono</label>
-    <input
-      type="text"
-      [(ngModel)]="empleadoSeleccionado.telefono">
-
-    <label>Correo</label>
-    <input
-      type="email"
-      [(ngModel)]="empleadoSeleccionado.correo">
-
-    <div class="modal-buttons">
-
-      <button
-        class="btn-cancelar"
-        (click)="cerrarModal()">
-
-        Cancelar
-
-      </button>
-
-      <button
-        class="btn-guardar"
-        (click)="guardarCambios()">
-
-        Guardar
-
-      </button>
-
-    </div>
-
-  </div>
-
+<h2 class="page-title-blue">Gestión de Colaboradores</h2>
+<div class="header-inline-left">
+  <button class="btn-action-blue" (click)="abrirModalNuevo()">+ Agregar Colaborador</button>
 </div>
 
+<div class="table-card-modern">
+  <table class="styled-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Apellidos y nombre</th>
+        <th>DNI</th>
+        <th>Celular</th>
+        <th>Correo</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (emp of empleados; track emp.idEmpleado) {
+        <tr [style.opacity]="emp.estado ? '1' : '0.5'">
+          <td>{{ emp.idEmpleado }}</td>
+          <td class="bold-text">{{ emp.apellidos }}, {{ emp.nombres }}</td>
+          <td>{{ emp.dni }}</td>
+          <td>{{ emp.telefono }}</td>
+          <td>{{ emp.correo }}</td>
+          <td>
+            <span class="status-pill" [class.active]="emp.estado" [class.inactive]="!emp.estado">
+              {{ emp.estado ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+          <td class="acciones">
+            <button class="btn-icon-edit" (click)="editar(emp)" title="Editar / Activar">
+                <i class="bi" [class.bi-pencil-square]="emp.estado" [class.bi-person-check-fill]="!emp.estado"></i>
+            </button>
+            @if (emp.estado) {
+                <button class="btn-icon-delete" (click)="eliminar(emp.idEmpleado)" title="Inactivar">
+                    <i class="bi bi-trash-fill"></i>
+                </button>
+            }
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="7" class="no-data">Cargando datos de colaboradores...</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<!-- MODAL REDISEÑADO COLABORADORES -->
+@if(mostrarModal){
+<div class="modal-backdrop">
+  <div class="modal-content-solid">
+    <div class="modal-header">
+        <h3>{{ modoEdicion ? 'Actualizar Datos' : 'Registrar Nuevo Ingreso' }}</h3>
+        <span class="close-btn" (click)="cerrarModal()">&times;</span>
+    </div>
+
+    <div class="modal-body">
+        <div class="form-row">
+            <div class="form-group" [class.valid]="empleadoSeleccionado.nombres">
+                <label>Nombres</label>
+                <div class="input-container">
+                    <input type="text" [(ngModel)]="empleadoSeleccionado.nombres" placeholder="Ingrese nombres">
+                    <i class="bi bi-check-circle-fill validation-check"></i>
+                </div>
+            </div>
+            <div class="form-group" [class.valid]="empleadoSeleccionado.apellidos">
+                <label>Apellidos</label>
+                <div class="input-container">
+                    <input type="text" [(ngModel)]="empleadoSeleccionado.apellidos" placeholder="Ingrese apellidos">
+                    <i class="bi bi-check-circle-fill validation-check"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group" [class.valid]="empleadoSeleccionado.dni && empleadoSeleccionado.dni.length === 8">
+                <label>Documento (DNI)</label>
+                <div class="input-container">
+                    <input type="text" [(ngModel)]="empleadoSeleccionado.dni" placeholder="8 dígitos">
+                    <i class="bi bi-check-circle-fill validation-check"></i>
+                </div>
+            </div>
+            <div class="form-group" [class.valid]="empleadoSeleccionado.telefono">
+                <label>Teléfono / Celular</label>
+                <div class="input-container">
+                    <input type="text" [(ngModel)]="empleadoSeleccionado.telefono" placeholder="Ej: 999111222">
+                    <i class="bi bi-check-circle-fill validation-check"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group full-width" [class.valid]="empleadoSeleccionado.correo && empleadoSeleccionado.correo.includes('@')">
+            <label>Correo Institucional</label>
+            <div class="input-container">
+                <input type="email" [(ngModel)]="empleadoSeleccionado.correo" placeholder="ejemplo@empresa.com">
+                <i class="bi bi-check-circle-fill validation-check"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secundario" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn-primario" (click)="guardarCambios()">{{ modoEdicion ? 'Actualizar Ahora' : 'Guardar Registro' }}</button>
+    </div>
+  </div>
+</div>
 }

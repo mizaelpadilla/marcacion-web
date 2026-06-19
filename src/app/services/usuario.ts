@@ -17,4 +17,12 @@ export class UsuarioService {
   activarUsuario(dto: RegistrarUsuarioDto): Observable<string> {
     return this.http.post(`${this.apiUrl}/activar`, dto, { responseType: 'text' });
   }
+
+  editarUsuario(id: number, usuario: Usuario): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}`, usuario);
+  }
+
+  eliminarUsuario(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
+  }
 }
