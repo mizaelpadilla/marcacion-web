@@ -1,1 +1,81 @@
-<p>horario works!</p>
+<div class="horarios-container">
+
+  <div class="header-seccion">
+    <h2>Gestión de Bloques de Horarios</h2>
+    <button class="btn-agregar" (click)="abrirModalCrear()">
+      <i class="bi bi-clock-fill"></i> Nuevo Horario
+    </button>
+  </div>
+
+  <table class="tabla-horarios">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre Horario</th>
+        <th>Entrada</th>
+        <th>Salida</th>
+        <th>Inicio Ref.</th>
+        <th>Fin Ref.</th>
+        <th>Tolerancia</th>
+      </tr>
+    </thead>
+    <tbody>
+  @for (horario of listaHorarios; track horario.idHorario) {
+    <tr>
+      <td>{{ horario.idHorario }}</td>
+      <td><strong>{{ horario.nombreHorario }}</strong></td>
+      <td>{{ horario.horaEntrada }}</td>
+      <td>{{ horario.horaSalida }}</td>
+      <td>{{ horario.horaRefrigerio || '---' }}</td>
+      <td>{{ horario.horaFinRefrigerio || '---' }}</td>
+      <td><span class="badge-tolerancia">{{ horario.toleranciaMinutos }} min</span></td>
+    </tr>
+  } @empty {
+    <tr>
+      <td colspan="7" class="no-data">No hay horarios registrados en el sistema.</td>
+    </tr>
+  }
+</tbody>
+  </table>
+</div>
+
+@if (mostrarModalCrear) {
+<div class="modal-backdrop">
+  <div class="modal">
+    <h3>Registrar Nuevo Bloque de Horario</h3>
+
+    <label>Nombre del Horario:</label>
+    <input type="text" [(ngModel)]="nuevoHorario.nombreHorario" placeholder="Ej: Turno Mañana u Oficina">
+
+    <div class="form-row">
+      <div>
+        <label>Hora Entrada:</label>
+        <input type="time" [(ngModel)]="nuevoHorario.horaEntrada">
+      </div>
+      <div>
+        <label>Hora Salida:</label>
+        <input type="time" [(ngModel)]="nuevoHorario.horaSalida">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div>
+        <label>Inicio Refrigerio (Opcional):</label>
+        <input type="time" [(ngModel)]="nuevoHorario.horaRefrigerio">
+      </div>
+      <div>
+        <label>Fin Refrigerio (Opcional):</label>
+        <input type="time" [(ngModel)]="nuevoHorario.horaFinRefrigerio">
+      </div>
+    </div>
+
+    <label>Tolerancia de Entrada (Minutos):</label>
+    <input type="number" [(ngModel)]="nuevoHorario.toleranciaMinutos" min="0">
+
+    <div class="modal-buttons">
+      <button class="btn-cancelar" (click)="cerrarModalCrear()">Cancelar</button>
+      <button class="btn-guardar" (click)="guardarHorario()">Guardar Horario</button>
+    </div>
+  </div>
+</div>
+}

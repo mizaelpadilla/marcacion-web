@@ -1,4 +1,4 @@
-.horarios-container {
+.plan-container {
   padding: 30px;
   font-family: 'Segoe UI', Roboto, sans-serif;
 }
@@ -25,7 +25,7 @@
   gap: 8px;
 }
 
-.tabla-horarios {
+.tabla-plan {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
@@ -36,32 +36,51 @@
   border: 1px solid #e0e0e0;
 }
 
-.tabla-horarios th, .tabla-horarios td {
+.tabla-plan th, .tabla-plan td {
   padding: 14px 18px;
   text-align: left;
   font-size: 14px;
 }
 
-.tabla-horarios th {
+.tabla-plan th {
   background-color: #f1f3f5;
   color: #495057;
   font-weight: 600;
 }
 
-.tabla-horarios td {
+.tabla-plan td {
   border-bottom: 1px solid #eee;
 }
 
-.badge-tolerancia {
-  background-color: #fff3cd;
-  color: #856404;
+.badge-turno {
+  background-color: #e2f0d9;
+  color: #385723;
   padding: 4px 10px;
-  border-radius: 50px;
+  border-radius: 4px;
   font-weight: 600;
-  font-size: 12px;
+  font-size: 13px;
 }
 
-/* Modales y Formularios */
+/* Indicadores de Estado */
+.status-pill {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-pill.activo {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
+.status-pill.inactivo {
+  background-color: #e2e3e5;
+  color: #41464b;
+}
+
+/* Modal Estilo Consistente */
 .modal-backdrop {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
@@ -76,17 +95,11 @@
   padding: 25px 30px;
   border-radius: 10px;
   width: 100%;
-  max-width: 460px;
+  max-width: 420px;
   display: flex;
   flex-direction: column;
   gap: 12px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
 }
 
 .modal label {
@@ -96,11 +109,12 @@
   margin-bottom: -4px;
 }
 
-.modal input {
+.modal select, .modal input {
   padding: 10px;
   border: 1px solid #ced4da;
   border-radius: 6px;
   font-size: 14px;
+  background-color: white;
   width: 100%;
   box-sizing: border-box;
 }

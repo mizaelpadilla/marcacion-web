@@ -12,7 +12,48 @@ export class EmpleadoService {
 
   constructor(private http: HttpClient) {}
 
+  // LISTAR
   listar(): Observable<Empleado[]> {
     return this.http.get<Empleado[]>(this.apiUrl);
+  }
+
+  // BUSCAR POR ID
+  buscar(id: number): Observable<Empleado> {
+    return this.http.get<Empleado>(
+      `${this.apiUrl}/${id}`
+    );
+  }
+
+  // REGISTRAR
+  registrar(
+    empleado: Empleado
+  ): Observable<any> {
+    return this.http.post(
+      this.apiUrl,
+      empleado
+    );
+  }
+
+  // EDITAR
+  editar(
+    empleado: Empleado
+  ): Observable<any> {
+    return this.http.put(
+      `${this.apiUrl}/${empleado.idEmpleado}`,
+      empleado
+    );
+  }
+
+  // ELIMINAR
+  eliminar(
+    id: number
+  ): Observable<any> {
+    return this.http.delete(
+      `${this.apiUrl}/${id}`
+    );
+  }
+
+  cambiarEstado(id: number): Observable<Empleado> {
+    return this.http.patch<Empleado>(`${this.apiUrl}/estado/${id}`, {});
   }
 }

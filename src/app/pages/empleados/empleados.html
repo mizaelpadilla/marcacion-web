@@ -1,23 +1,113 @@
-<h2>Lista de Empleados</h2>
+<h2>Empleados</h2>
 
-<table border="1">
+<table>
+
   <thead>
     <tr>
       <th>ID</th>
       <th>Nombres</th>
       <th>Apellidos</th>
       <th>DNI</th>
+      <th>Teléfono</th>
       <th>Correo</th>
+      <th>Acciones</th>
     </tr>
   </thead>
 
   <tbody>
-    <tr *ngFor="let e of empleados">
-      <td>{{e.idEmpleado}}</td>
-      <td>{{e.nombres}}</td>
-      <td>{{e.apellidos}}</td>
-      <td>{{e.dni}}</td>
-      <td>{{e.correo}}</td>
+
+    <tr *ngFor="let emp of empleados">
+
+      <td>{{ emp.idEmpleado }}</td>
+      <td>{{ emp.nombres }}</td>
+      <td>{{ emp.apellidos }}</td>
+      <td>{{ emp.dni }}</td>
+      <td>{{ emp.telefono }}</td>
+      <td>{{ emp.correo }}</td>
+
+      <td class="acciones">
+
+        <button
+          class="btn-icon editar"
+          title="Editar"
+          (click)="editar(emp)">
+
+          <i class="bi bi-pencil-square"></i>
+
+        </button>
+
+        <button
+          class="btn-icon eliminar"
+          title="Desactivar"
+          (click)="eliminar(emp.idEmpleado)">
+
+          <i class="bi bi-trash-fill"></i>
+
+        </button>
+
+      </td>
+
     </tr>
+
   </tbody>
+
 </table>
+
+@if(mostrarModal){
+
+<div class="modal-backdrop">
+
+  <div class="modal">
+
+    <h3>Editar Empleado</h3>
+
+    <label>Nombres</label>
+    <input
+      type="text"
+      [(ngModel)]="empleadoSeleccionado.nombres">
+
+    <label>Apellidos</label>
+    <input
+      type="text"
+      [(ngModel)]="empleadoSeleccionado.apellidos">
+
+    <label>DNI</label>
+    <input
+      type="text"
+      [(ngModel)]="empleadoSeleccionado.dni">
+
+    <label>Teléfono</label>
+    <input
+      type="text"
+      [(ngModel)]="empleadoSeleccionado.telefono">
+
+    <label>Correo</label>
+    <input
+      type="email"
+      [(ngModel)]="empleadoSeleccionado.correo">
+
+    <div class="modal-buttons">
+
+      <button
+        class="btn-cancelar"
+        (click)="cerrarModal()">
+
+        Cancelar
+
+      </button>
+
+      <button
+        class="btn-guardar"
+        (click)="guardarCambios()">
+
+        Guardar
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+}

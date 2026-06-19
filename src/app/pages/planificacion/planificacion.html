@@ -1,0 +1,77 @@
+<div class="plan-container">
+
+  <div class="header-seccion">
+    <h2>Planificación de Horarios de Empleados</h2>
+    <button class="btn-agregar" (click)="abrirModalCrear()">
+      <i class="bi bi-calendar-plus-fill"></i> Asignar Turno a Empleado
+    </button>
+  </div>
+
+  <table class="tabla-plan">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Empleado</th>
+        <th>Turno Asignado</th>
+        <th>Fecha Inicio</th>
+        <th>Fecha Fin</th>
+        <th>Estado</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (p of listaPlanificaciones; track p.idPlanificacion) {
+        <tr>
+          <td>{{ p.idPlanificacion }}</td>
+          <td><strong>{{ p.empleado?.nombreCompleto || 'Empleado #' + p.idEmpleado }}</strong></td>
+          <td><span class="badge-turno">{{ p.turno?.nombreTurno || 'Turno #' + p.idTurno }}</span></td>
+          <td>{{ p.fechaInicio | date:'dd/MM/yyyy' }}</td>
+          <td>{{ p.fechaFin | date:'dd/MM/yyyy' }}</td>
+          <td>
+            <span class="status-pill" [class.activo]="p.estado" [class.inactivo]="!p.estado">
+              {{ p.estado ? 'Vigente' : 'Historial' }}
+            </span>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="6" class="no-data">No hay empleados planificados actualmente.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+@if (mostrarModalCrear) {
+<div class="modal-backdrop">
+  <div class="modal">
+    <h3>Asignar Turno Semanal</h3>
+
+    <label>Seleccionar Empleado:</label>
+<select [(ngModel)]="nuevoPlan.idEmpleado">
+  <option [value]="0" disabled selected>-- Elija un Empleado --</option>
+  @for (emp of listaEmpleados; track emp.idEmpleado) {
+    <option [value]="emp.idEmpleado">{{ emp.nombres }} {{ emp.apellidos }} (DNI: {{ emp.dni }})</option>
+  }
+</select>
+
+    <label>Seleccionar Turno Horario:</label>
+    <select [(ngModel)]="nuevoPlan.idTurno">
+      <option [value]="0" disabled selected>-- Elija un Turno Semanal --</option>
+      @for (t of listaTurnos; track t.idTurno) {
+        <option [value]="t.idTurno">{{ t.nombreTurno }}</option>
+      }
+    </select>
+
+    <label>Fecha de Inicio:</label>
+    <input type="date" [(ngModel)]="nuevoPlan.fechaInicio">
+
+    <label>Fecha de Fin (Vencimiento del ciclo):</label>
+    <input type="date" [(ngModel)]="nuevoPlan.fechaFin">
+
+    <div class="modal-buttons">
+      <button class="btn-cancelar" (click)="cerrarModalCrear()">Cancelar</button>
+      <button class="btn-guardar" (click)="guardarPlanificacion()">Confirmar Asignación</button>
+    </div>
+  </div>
+</div>
+}

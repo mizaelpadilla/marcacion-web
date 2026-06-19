@@ -1,0 +1,51 @@
+h1 {
+  font-family: 'Segoe UI', sans-serif;
+  color: #212529;
+  margin-bottom: 10px;
+}
+
+hr {
+  border: 0;
+  border-top: 2px solid #dee2e6;
+  margin-bottom: 25px;
+}
+
+/* Contenedor en grilla para los botones */
+.dashboard-menu {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 15px;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Estilo moderno para cada botón del menú */
+.dashboard-menu button {
+  background-color: #ffffff;
+  color: #495057;
+  border: 1px solid #ced4da;
+  padding: 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease-in-out;
+}
+
+/* Efectos al pasar el mouse */
+.dashboard-menu button:hover {
+  background-color: #0d6efd;
+  color: #ffffff;
+  border-color: #0d6efd;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(13, 110, 253, 0.15);
+}
+
+.dashboard-menu button i {
+  font-size: 24px;
+}
